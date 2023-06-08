@@ -122,15 +122,44 @@ def delta_analytical_eu(S0, K, T, sig, r, N, kind='C'):
     delta_ana = (price_up - price_down) / (Su - Sd)
     return delta_ana
 
+def gamma(S0, K, T, r, N, sig, option='eu', kind='P'):
+    dt = T/N
+    u = np.exp(sig * np.sqrt(dt))
+    d = 1/u
+    delta_up = delta(S0 * u, K, T, r, N - 1, sig, option, kind)
+    delta_down = delta(S0 * d, K, T, r, N - 1, sig, option, kind)
+    Su = S0 * (u**2)
+    Sd = S0 * (d**2)
+    return (delta_up - delta_down) / ((Su - Sd) / 2)
+
+def gamma_exact(S0, K, T, r, sig):
+    d1 = (np.log(S0/K) + (r + ((sig**2)/2))*T)/(sig * np.sqrt(T))
+    N_acc = (1 / (np.sqrt(2 * np.pi))) * np.exp(-(d1**2 / 2))
+    G = (N_acc / (S0 * sig * np.sqrt(T)))
+    return G
+
+def plot_gamma(S0, K, T, r, sig, option, kind):
+    N = np.arange(5, 200, 1)
+    gamma_binomial = [gamma(S0, K, T, r, i, sig, option, kind) for i in N]
+    gamma_ana = [gamma_exact(S0, K, T, r, sig) for _ in N]
+    plt.figure(figsize=(7,7), dpi=250)
+    plt.plot(N, gamma_binomial, label='Gamma binomial tree')
+    plt.plot(N, gamma_ana, label='Gamma exact')
+    plt.xlabel('N')
+    plt.ylabel('Gamma')
+    plt.title('Gamma for European call option')
+    plt.legend()
+    plt.show()
 
 if __name__ == '__main__':
     S0 = 100
     K = 105
     T = 1
     N = 100
-    r = 0.05
+    r = 0.0
     sig = 0.2
     # plot_delta(S0, K, T, sig, option='am', kind='P')
-    plot_delta_both(S0, K, T, r, sig, kind='C')
+    # plot_delta_both(S0, K, T, r, sig, kind='C')
     # delta(S0, K, T, N, sig, kind='P')
     # delta_analytical(S0, K, T, sig, r, N)
+    plot_gamma(S0, K, T, r, sig, option='eu', kind='C')
