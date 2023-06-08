@@ -92,6 +92,40 @@ def plot_delta(S0, K, T, r, sig, option, kind):
     plt.legend()
     plt.show()
 
+# def plot_delta_analytical_am(S0, K, T, r, sig, kind):
+#     N = np.arange(5, 100, 1)
+#     delta_binomial = [delta(S0, K, T, r, i, sig, 'am', kind) for i in N]
+#     x_even, x_odd, new_d1_even, new_d1_odd = [], [], [], []
+#     for i in N:
+#         dt = T/i
+#         u = np.exp(sig * np.sqrt(dt))
+#         d = 1/u
+#         right_price_up = CRR_model(S0 * u, K, T - dt, 10000 - 1, r, sig, 'am', kind)
+#         right_price_down = CRR_model(S0 * d, K, T - dt, 10000 - 1, r, sig, 'am', kind)
+#         price_up = right_price_up - error_analytical(S0 * u, K, T - dt, sig, r, i-1)
+#         price_down = right_price_down - error_analytical(S0 * d, K, T - dt, sig, r, i-1)
+#         Su = S0 * u
+#         Sd = S0 * d
+#         delta_ana = (price_up - price_down) / (Su - Sd)
+#         if i % 2 == 0:
+#             new_d1_even.append(delta_ana)
+#             x_even.append(i)
+#         else:
+#             new_d1_odd.append(delta_ana)
+#             x_odd.append(i)
+#     plt.figure(figsize=(7,7), dpi=250)
+#     plt.plot(N, delta_binomial, label='Delta')
+#     plt.plot(x_even, new_d1_even, label='even')
+#     plt.plot(x_odd, new_d1_odd, label='odd')
+#     plt.xlabel('N')
+#     plt.ylabel('Delta')
+#     if kind == 'C':
+#         plt.title('Delta for different values of N for American call option')
+#     if kind == 'P':
+#         plt.title('Delta for different values of N for American put option')
+#     plt.legend()
+#     plt.show()
+
 
 def error_analytical(S0, K, T, sig, r, N):
     dt = T/N
@@ -151,6 +185,57 @@ def plot_gamma(S0, K, T, r, sig, option, kind):
     plt.legend()
     plt.show()
 
+def gamma_analytical(S0, K, T, sig, r, N, kind='C'):
+    dt = T/N
+    u = np.exp(sig * np.sqrt(dt))
+    d = 1/u
+    Su = S0 * (u**2)
+    Sd = S0 * (d**2)
+    delta_up = delta_analytical_eu(S0 * u, K, T, sig, r, N - 1, kind)
+    delta_down = delta_analytical_eu(S0 * d, K, T, sig, r, N - 1, kind)
+    return (delta_up - delta_down) / ((Su - Sd) / 2)
+
+def plot_gamma_analytical(S0, K, T, r, sig, option, kind):
+    N = np.arange(5, 100, 1)
+    gamma_binomial = [gamma(S0, K, T, r, i, sig, option, kind) for i in N]
+    x_even, x_odd, new_d1_even, new_d1_odd = [], [], [], []
+    for i in N:
+        if i % 2 == 0:
+            new_d1_even.append(gamma_analytical(S0, K, T, sig, r, i, kind))
+            x_even.append(i)
+        else:
+            new_d1_odd.append(gamma_analytical(S0, K, T, sig, r, i, kind))
+            x_odd.append(i)
+    plt.figure(figsize=(7,7), dpi=250)
+    plt.plot(N, gamma_binomial, label='Delta')
+    plt.plot(x_even, new_d1_even, label='even')
+    plt.plot(x_odd, new_d1_odd, label='odd')
+    plt.xlabel('N')
+    plt.ylabel('Gamma')
+    if option == 'eu' and kind == 'C':
+        plt.title('Gamma for different values of N for European call option')
+    if option == 'am' and kind == 'C':
+        plt.title('Gamma for different values of N for American call option')
+    if option == 'eu' and kind == 'P':
+        plt.title('Gamma for different values of N for European put option')
+    if option == 'am' and kind == 'P':
+        plt.title('Gamma for different values of N for American put option')
+    plt.legend()
+    plt.show()
+
+def plot_gamma_both(S0, K, T, r, sig, kind):
+    N = np.arange(5, 100, 1)
+    gamma_am = [gamma(S0, K, T, r, i, sig, 'am', kind) for i in N]
+    gamma_eu = [gamma(S0, K, T, r, i, sig, 'eu', kind) for i in N]
+    plt.figure(figsize=(7,7), dpi=250)
+    plt.plot(N, gamma_am, label='Delta American option')
+    plt.plot(N, gamma_eu, label='Delta European option')
+    plt.xlabel('N')
+    plt.ylabel('Delta')
+    plt.title('Gamma for American call and European call options')
+    plt.legend()
+    plt.show()
+
 if __name__ == '__main__':
     S0 = 100
     K = 105
@@ -162,4 +247,7 @@ if __name__ == '__main__':
     # plot_delta_both(S0, K, T, r, sig, kind='C')
     # delta(S0, K, T, N, sig, kind='P')
     # delta_analytical(S0, K, T, sig, r, N)
-    plot_gamma(S0, K, T, r, sig, option='eu', kind='C')
+    # plot_gamma(S0, K, T, r, sig, option='eu', kind='C')
+    # plot_gamma_analytical(S0, K, T, r, sig, option='am', kind='C')
+    plot_gamma_both(S0, K, T, r, sig, kind='C')
+    # plot_delta_analytical_am(S0, K, T, r, sig, kind='C')
