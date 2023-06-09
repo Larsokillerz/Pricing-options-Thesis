@@ -207,7 +207,7 @@ def plot_gamma_analytical(S0, K, T, r, sig, option, kind):
             new_d1_odd.append(gamma_analytical(S0, K, T, sig, r, i, kind))
             x_odd.append(i)
     plt.figure(figsize=(7,7), dpi=250)
-    plt.plot(N, gamma_binomial, label='Delta')
+    plt.plot(N, gamma_binomial, label='Gamma')
     plt.plot(x_even, new_d1_even, label='even')
     plt.plot(x_odd, new_d1_odd, label='odd')
     plt.xlabel('N')
@@ -228,10 +228,10 @@ def plot_gamma_both(S0, K, T, r, sig, kind):
     gamma_am = [gamma(S0, K, T, r, i, sig, 'am', kind) for i in N]
     gamma_eu = [gamma(S0, K, T, r, i, sig, 'eu', kind) for i in N]
     plt.figure(figsize=(7,7), dpi=250)
-    plt.plot(N, gamma_am, label='Delta American option')
-    plt.plot(N, gamma_eu, label='Delta European option')
+    plt.plot(N, gamma_am, label='Gamma American option')
+    plt.plot(N, gamma_eu, label='Gamma European option')
     plt.xlabel('N')
-    plt.ylabel('Delta')
+    plt.ylabel('Gamma')
     plt.title('Gamma for American call and European call options')
     plt.legend()
     plt.show()
@@ -241,7 +241,7 @@ if __name__ == '__main__':
     K = 105
     T = 1
     N = 100
-    r = 0.0
+    r = 0.05
     sig = 0.2
     # plot_delta(S0, K, T, sig, option='am', kind='P')
     # plot_delta_both(S0, K, T, r, sig, kind='C')
