@@ -251,7 +251,7 @@ def plot_multiple_am(K, T, r, sig, option='C'):
 
 if __name__ == '__main__':
     S0 = 1
-    K = 1.1
+    K = 1
     T = 1
     N = 100
     r = 0.0
@@ -262,5 +262,5 @@ if __name__ == '__main__':
     # plot_analytical_eu(S0, K, T, r, sig, 'P')
     # error_upperbound_eu(S0, K, T, r, sig)
     # error_upperbound_am(S0, K, T, r, sig)
-    # plot_analytical_eu(S0, K, T, r, sig, option='C')
-    plot_multiple_am(K, T, r, sig, option='C')
+    plot_analytical_eu(S0, K, T, r, sig, option='P')
+    # plot_multiple_am(K, T, r, sig, option='C')
