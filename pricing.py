@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import norm
 
 def CRR_model(S0, K, T, N, r, sig, option='eu', kind='P'):
+    """Calculate the option prices using the CRR model."""
     dt = T/N
     u = np.exp(sig * np.sqrt(dt))
     d = 1/u
@@ -34,6 +35,7 @@ def CRR_model(S0, K, T, N, r, sig, option='eu', kind='P'):
     return payoff[0]
 
 def blackScholes_model(S, K, T, r, sig, option='P'):
+    """Calculate the option price using the Black-Scholes formula."""
     d1 = (np.log(S/K) + (r + ((sig**2)/2))*T)/(sig * np.sqrt(T))
     d2 = d1 - sig * np.sqrt(T)
     if option == 'P':
@@ -43,6 +45,7 @@ def blackScholes_model(S, K, T, r, sig, option='P'):
     return price
 
 def plot_price_eu(S0, K, T, r, sig):
+    """Plot the price of the European options"""
     N = np.arange(5, 200, 1)
     price = [CRR_model(S0, K, T, i, r, sig) for i in N]
     bs = [blackScholes_model(S0, K, T, r, sig) for _ in N]
@@ -56,6 +59,7 @@ def plot_price_eu(S0, K, T, r, sig):
     plt.show()
 
 def plot_am(S0, K, T, r, sig):
+    """Plot the price of the American options."""
     N = np.arange(5, 200, 1)
     price = [CRR_model(S0, K, T, i, r, sig, 'am') for i in N]
     plt.figure(figsize=(7,7), dpi=250)
@@ -67,6 +71,7 @@ def plot_am(S0, K, T, r, sig):
     plt.show()
 
 def error_eu(S0, K, T, r, sig):
+    """Plot the error of the European options."""
     price = blackScholes_model(S0, K, T, r, sig)
     h = np.arange(10, 1000, 1)
     error = []
@@ -85,6 +90,7 @@ def error_eu(S0, K, T, r, sig):
     plt.show()
 
 def error_am(S0, K, T, r, sig):
+    """Plot the error of the American options."""
     price = CRR_model(S0, K, T, 10000, r, sig, 'am')
     h = np.arange(10, 1000, 1)
     error = []
@@ -103,6 +109,9 @@ def error_am(S0, K, T, r, sig):
     plt.show()
 
 def plot_am_eu(S0, K, T, r, sig):
+    """Plot the price of the European options and
+    American options in one figure.
+    """
     N = np.arange(5, 200, 1)
     price_eu = [CRR_model(S0, K, T, i, r, sig, 'eu', 'P') for i in N]
     price_am = [CRR_model(S0, K, T, i, r, sig, 'am', 'P') for i in N]
@@ -116,20 +125,16 @@ def plot_am_eu(S0, K, T, r, sig):
     plt.show()
 
 if __name__ == '__main__':
+    # Initialize all begin values.
     S0 = 100
     K = 105
     T = 1
     N = 100
     r = 0.05
     sig = 0.2
-    price = (CRR_model(S0, K, T, N, r, sig, 'eu'))
-    # print(price)
-    # error(S0, K, T, r, sig)
-    # print(blackScholes_model(S0, K, T, r, sig))
+    # Uncomment one of the following lines:
     # plot_price_eu(S0, K, T, r, sig)
     # error_eu(S0, K, T, r, sig)
     # plot_am(S0, K, T, r, sig)
     # error_am(S0, K, T, r, sig)
-    # plot_analytical(S0, K, T, r, sig)
-    # error_upperbound_eu(S0, K, T, r, sig)
-    plot_am_eu(S0, K, T, r, sig)
+    # plot_am_eu(S0, K, T, r, sig)

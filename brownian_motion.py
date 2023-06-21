@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def brown_motion(T, n, d, times):
+    """Simulate the Brownian motion."""
     dt = T/n
 
     dB = np.random.normal(0, np.sqrt(dt), size=(n - 1, d))
@@ -11,9 +12,11 @@ def brown_motion(T, n, d, times):
     return B
 
 def quadratic_var(B):
+    """Calculate the quadratic variation."""
     return np.cumsum(np.power(np.diff(B, axis=0, prepend=0.), 2), axis=0)
 
 def geometric_brownian_motion(T, n, d):
+    """Calculate the geometric Brownian motion."""
     mu = 0.1
     S0 = 0.001
     sigma = 0.3
@@ -24,6 +27,7 @@ def geometric_brownian_motion(T, n, d):
     return S_t
 
 if __name__ == '__main__':
+    # Initialize all start values.
     T = 1.0
     n = 10000
     d = 1

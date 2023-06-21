@@ -119,7 +119,6 @@ def plot_even_odd(S, h, alpha, beta, T, S0):
     B_even = flatten_list(B_even)
     B_odd = flatten_list(B_odd)
     ax2 = ax1.twinx()
-    # k, B = BT
     ax2.set_ylabel('Binomial probability')
     ax2.plot(s_odd, B_odd,label="Binomial odd")
     ax2.plot(s_even, B_even, label="Binomial even")
@@ -129,6 +128,7 @@ def plot_even_odd(S, h, alpha, beta, T, S0):
     plt.show()
 
 if __name__ == '__main__':
+    # Initialize the begin values.
     S0 = 100
     T = 1
     N = 350

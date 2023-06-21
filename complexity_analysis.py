@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import time
 
 def CRR_model_complexity_analysis(S0, K, T, n, r, sig, option='eu'):
+    """Complexity analysis on the CRR model."""
     N = ((n + 1) * (n + 2)) // 2
     time_arr_eu = []
     time_arr_am = []
@@ -46,6 +47,7 @@ def CRR_model_complexity_analysis(S0, K, T, n, r, sig, option='eu'):
     plt.show()
 
 def time_analysis_construction_tree(S0, n, T, beta):
+    """Time analysis of the construction of the tree."""
     time_arr = []
     N = ((n + 1) * (n + 2)) // 2
     for i in n :
@@ -75,6 +77,7 @@ def calculate_option_price(node):
 
 
 if __name__ == '__main__':
+    # Initialize all begin values.
     beta = 0.15
     S0 = 100
     K = 105

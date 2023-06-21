@@ -1,10 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import math
 from scipy.stats import norm
 from pricing import blackScholes_model, CRR_model
 
 def flatten_list(lst):
+    """Flatten a list."""
     flattened = []
     for i in lst:
         if isinstance(i, list):
@@ -14,6 +14,8 @@ def flatten_list(lst):
     return flattened
 
 def delta(S0, K, T, r, N, sig, option='eu', kind='P'):
+    """Calculate delta using the formula delta = P_u - P_d / S_u - S_d.
+    """
     dt = T/N
     u = np.exp(sig * np.sqrt(dt))
     d = 1/u
@@ -30,6 +32,7 @@ def delta(S0, K, T, r, N, sig, option='eu', kind='P'):
     if kind == 'C':
         payoff = np.maximum(S - K, np.zeros(N + 1))
 
+    # Calcluate the prices of the option.
     if option == 'eu':
         for i in np.arange(N, 1, -1):
             payoff = np.exp(-r * dt) * (p * payoff[1:i+1] + (1 - p) * payoff[0:i])
@@ -46,6 +49,7 @@ def delta(S0, K, T, r, N, sig, option='eu', kind='P'):
     return Delta
 
 def plot_delta_both(S0, K, T, r, sig, kind):
+    """Plot the delta of European options and American options."""
     N = np.arange(5, 100, 1)
     d_am = [delta(S0, K, T, r, i, sig, 'am', kind) for i in N]
     d_eu = [delta(S0, K, T, r, i, sig, 'eu', kind) for i in N]
@@ -59,15 +63,19 @@ def plot_delta_both(S0, K, T, r, sig, kind):
     plt.show()
 
 def plot_delta(S0, K, T, r, sig, option, kind):
+    """Plot the delta and the approximation of European options."""
+    # Initialize all values.
     N = np.arange(5, 100, 1)
     d1 = (np.log(S0/K) + (r + ((sig**2)/2))*T)/(sig * np.sqrt(T))
     if kind == 'C':
         delta_ana = norm.cdf(d1)
     if kind == 'P':
         delta_ana = norm.cdf(d1) - 1
+    # Calculate the exact and the delta.
     bs = [delta_ana for _ in N]
     d = [delta(S0, K, T, r, i, sig, option, kind) for i in N]
     x_even, x_odd, new_d1_even, new_d1_odd = [], [], [], []
+    # Calculate the approximation.
     for i in N:
         if i % 2 == 0:
             new_d1_even.append(delta_analytical_eu(S0, K, T, sig, r, i, kind))
@@ -75,6 +83,7 @@ def plot_delta(S0, K, T, r, sig, option, kind):
         else:
             new_d1_odd.append(delta_analytical_eu(S0, K, T, sig, r, i, kind))
             x_odd.append(i)
+    # Plot the delta and the approximations.
     plt.figure(figsize=(7,7), dpi=250)
     plt.plot(N, d, label='Delta')
     plt.plot(x_even, new_d1_even, label='even')
@@ -93,9 +102,12 @@ def plot_delta(S0, K, T, r, sig, option, kind):
     plt.show()
 
 def plot_delta_analytical_am(S0, K, T, r, sig, kind):
+    """Plot the delta and approximation of delta of the American options."""
+    # Initialize the values.
     N = np.arange(5, 100, 1)
     delta_binomial = [delta(S0, K, T, r, i, sig, 'am', kind) for i in N]
     x_even, x_odd, new_d1_even, new_d1_odd = [], [], [], []
+    # Calulate the approximation of delta for American options.
     for i in N:
         dt = T/i
         u = np.exp(sig * np.sqrt(dt))
@@ -113,6 +125,7 @@ def plot_delta_analytical_am(S0, K, T, r, sig, kind):
         else:
             new_d1_odd.append(delta_ana)
             x_odd.append(i)
+    # Plot the approximation and delta.
     plt.figure(figsize=(7,7), dpi=250)
     plt.plot(N, delta_binomial, label='Delta')
     plt.plot(x_even, new_d1_even, label='even')
@@ -128,12 +141,19 @@ def plot_delta_analytical_am(S0, K, T, r, sig, kind):
 
 
 def error_analytical(S0, K, T, sig, r, N):
+    """Calculate the approximation using the formula od Francine Diener and
+    Marc Diener.
+    """
+
+    # Initialize the values.
     dt = T/N
     T = T - dt
     u = np.exp(sig * np.sqrt(dt))
     d = 1/u
     a = ((np.log(K / S0)) - (N * np.log(d))) / (np.log(u) - np.log(d))
+    # Calculate kappa.
     frac = a % 1
+    # Calculate the higher order approximation.
     first_part_D_1 = (1/(96 * sig * np.sqrt(T)))
     part_2_D_1 = 4 * (np.log(S0 / K))**2
     part_3_D_1 = 8 * r * T * np.log(S0 / K)
@@ -146,6 +166,9 @@ def error_analytical(S0, K, T, sig, r, N):
     return P_n
 
 def delta_analytical_eu(S0, K, T, sig, r, N, kind='C'):
+    """Calculate the approximation of delta using the function
+    error_analytical.
+    """
     dt = T/N
     u = np.exp(sig * np.sqrt(dt))
     d = 1/u
@@ -157,6 +180,9 @@ def delta_analytical_eu(S0, K, T, sig, r, N, kind='C'):
     return delta_ana
 
 def gamma(S0, K, T, r, N, sig, option='eu', kind='P'):
+    """Calculate gamma using the formula
+    (delta_up - delta_down) / ((Su - Sd) / 2).
+    """
     dt = T/N
     u = np.exp(sig * np.sqrt(dt))
     d = 1/u
@@ -167,12 +193,14 @@ def gamma(S0, K, T, r, N, sig, option='eu', kind='P'):
     return (delta_up - delta_down) / ((Su - Sd) / 2)
 
 def gamma_exact(S0, K, T, r, sig):
+    """Calculate the exact value of gamma as is done in the thesis."""
     d1 = (np.log(S0/K) + (r + ((sig**2)/2))*T)/(sig * np.sqrt(T))
     N_acc = (1 / (np.sqrt(2 * np.pi))) * np.exp(-(d1**2 / 2))
     G = (N_acc / (S0 * sig * np.sqrt(T)))
     return G
 
 def plot_gamma(S0, K, T, r, sig, option, kind):
+    """Plot gamma for binomial trees."""
     N = np.arange(5, 200, 1)
     gamma_binomial = [gamma(S0, K, T, r, i, sig, option, kind) for i in N]
     gamma_ana = [gamma_exact(S0, K, T, r, sig) for _ in N]
@@ -186,6 +214,7 @@ def plot_gamma(S0, K, T, r, sig, option, kind):
     plt.show()
 
 def gamma_analytical(S0, K, T, sig, r, N, kind='C'):
+    """Calculate the approximation of gamma using the delta approximation."""
     dt = T/N
     u = np.exp(sig * np.sqrt(dt))
     d = 1/u
@@ -196,9 +225,15 @@ def gamma_analytical(S0, K, T, sig, r, N, kind='C'):
     return (delta_up - delta_down) / ((Su - Sd) / 2)
 
 def plot_gamma_analytical(S0, K, T, r, sig, option, kind):
+    """Plot gamma and the approximation of gamma
+    for European and American options.
+    """
+
+    # Inititalize all values.
     N = np.arange(5, 100, 1)
     gamma_binomial = [gamma(S0, K, T, r, i, sig, option, kind) for i in N]
     x_even, x_odd, new_d1_even, new_d1_odd = [], [], [], []
+    # Calculate the approximation of gamma.
     for i in N:
         if i % 2 == 0:
             new_d1_even.append(gamma_analytical(S0, K, T, sig, r, i, kind))
@@ -206,6 +241,7 @@ def plot_gamma_analytical(S0, K, T, r, sig, option, kind):
         else:
             new_d1_odd.append(gamma_analytical(S0, K, T, sig, r, i, kind))
             x_odd.append(i)
+    # Plot the functions gamma and the approximation.
     plt.figure(figsize=(7,7), dpi=250)
     plt.plot(N, gamma_binomial, label='Gamma')
     plt.plot(x_even, new_d1_even, label='even')
@@ -224,6 +260,7 @@ def plot_gamma_analytical(S0, K, T, r, sig, option, kind):
     plt.show()
 
 def plot_gamma_both(S0, K, T, r, sig, kind):
+    """Plot gamma for both European and American options."""
     N = np.arange(5, 100, 1)
     gamma_am = [gamma(S0, K, T, r, i, sig, 'am', kind) for i in N]
     gamma_eu = [gamma(S0, K, T, r, i, sig, 'eu', kind) for i in N]
@@ -237,17 +274,19 @@ def plot_gamma_both(S0, K, T, r, sig, kind):
     plt.show()
 
 if __name__ == '__main__':
+    # Initialize all variabels.
     S0 = 100
     K = 105
     T = 1
     N = 100
     r = 0.0
     sig = 0.2
+    # Uncomment one of the following lines to use.
     # plot_delta(S0, K, T, r, sig, option='eu', kind='P')
     # plot_delta_both(S0, K, T, r, sig, kind='P')
     # delta(S0, K, T, N, sig, kind='P')
     # delta_analytical_eu(S0, K, T, sig, r, N)
     # plot_gamma(S0, K, T, r, sig, option='eu', kind='C')
-    plot_gamma_analytical(S0, K, T, r, sig, option='eu', kind='C')
+    # plot_gamma_analytical(S0, K, T, r, sig, option='eu', kind='C')
     # plot_gamma_both(S0, K, T, r, sig, kind='P')
     # plot_delta_analytical_am(S0, K, T, r, sig, kind='P')
